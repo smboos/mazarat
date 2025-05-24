@@ -11,6 +11,7 @@ import CoreLocation
 struct ContentView: View {
     @StateObject private var locationManager = LocationManager()
     @State private var selectedShrine: Shrine? = shrines.first
+    @State private var showingAbout = false
     
     var body: some View {
         NavigationView {
@@ -48,6 +49,20 @@ struct ContentView: View {
                                         .font(.caption)
                                         .foregroundColor(.gray)
                                 }
+                                
+                                NavigationLink(destination: ZiyarahView(shrine: shrine)) {
+                                    HStack {
+                                        Image(systemName: "text.book.closed.fill")
+                                        Text("Read Ziyarah")
+                                    }
+                                    .font(.custom("AvenirNext-Medium", size: 16))
+                                    .foregroundColor(.white)
+                                    .padding(.horizontal, 20)
+                                    .padding(.vertical, 10)
+                                    .background(ShiaColors.accent)
+                                    .cornerRadius(10)
+                                }
+                                .padding(.top, 5)
                             }
                             .padding()
                             .background(
@@ -99,6 +114,19 @@ struct ContentView: View {
                 .padding()
             }
             .navigationTitle("Mazarat")
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button(action: {
+                        showingAbout = true
+                    }) {
+                        Image(systemName: "info.circle")
+                            .foregroundColor(ShiaColors.primary)
+                    }
+                }
+            }
+            .sheet(isPresented: $showingAbout) {
+                AboutView()
+            }
         }
         .onAppear {
             locationManager.requestLocationPermission()

@@ -8,33 +8,73 @@ struct CompassView: View {
     
     var body: some View {
         ZStack {
-            // Outer circle
+            // Background circle with Islamic pattern
             Circle()
-                .stroke(ShiaColors.primary, lineWidth: 2)
-                .frame(width: 250, height: 250)
+                .fill(ShiaColors.background)
+                .frame(width: 300, height: 300)
+                .overlay(
+                    Circle()
+                        .stroke(ShiaColors.primary, lineWidth: 3)
+                )
+                .shadow(color: Color.black.opacity(0.1), radius: 10)
             
-            // Direction markers
+            // Islamic geometric pattern
             ForEach(0..<8) { i in
-                VStack {
+                Path { path in
+                    let center = CGPoint(x: 150, y: 150)
+                    let radius: CGFloat = 140
+                    let angle = Double(i) * .pi / 4
+                    
+                    path.move(to: center)
+                    path.addLine(to: CGPoint(
+                        x: center.x + radius * cos(angle),
+                        y: center.y + radius * sin(angle)
+                    ))
+                }
+                .stroke(ShiaColors.primary.opacity(0.3), lineWidth: 1)
+            }
+            
+            // Direction markers with Arabic-inspired font
+            ForEach(0..<8) { i in
+                VStack(spacing: 5) {
                     Text(directionText(for: i))
-                        .font(.system(size: 16, weight: .medium))
+                        .font(.custom("AvenirNext-Bold", size: 24))
                         .foregroundColor(ShiaColors.primary)
+                    
                     Rectangle()
                         .fill(ShiaColors.primary.opacity(0.5))
                         .frame(width: 2, height: 15)
                 }
-                .offset(y: -125)
+                .offset(y: -140)
                 .rotationEffect(.degrees(Double(i) * 45))
             }
             
-            // Compass needle
-            Image(systemName: "location.north.fill")
-                .resizable()
-                .frame(width: 20, height: 200)
-                .foregroundColor(ShiaColors.secondary)
-                .rotationEffect(.degrees(-heading))
+            // Compass needle with Islamic design
+            ZStack {
+                // Decorative circle in the center
+                Circle()
+                    .fill(ShiaColors.accent)
+                    .frame(width: 20, height: 20)
+                    .overlay(
+                        Circle()
+                            .stroke(ShiaColors.primary, lineWidth: 2)
+                    )
+                
+                // Main compass needle
+                Image(systemName: "location.north.fill")
+                    .resizable()
+                    .frame(width: 20, height: 200)
+                    .foregroundStyle(
+                        LinearGradient(
+                            colors: [ShiaColors.primary, ShiaColors.secondary],
+                            startPoint: .top,
+                            endPoint: .bottom
+                        )
+                    )
+                    .rotationEffect(.degrees(-heading))
+            }
             
-            // Direction to shrine
+            // Direction to shrine with Islamic-inspired arrow
             if let shrine = selectedShrine,
                let userLocation = userLocation {
                 let shrineLocation = CLLocation(latitude: shrine.latitude,
@@ -42,13 +82,28 @@ struct CompassView: View {
                 let bearing = calculateBearing(from: userLocation.coordinate,
                                             to: shrineLocation.coordinate)
                 
-                Image(systemName: "arrow.up.circle.fill")
-                    .resizable()
-                    .frame(width: 30, height: 30)
-                    .foregroundColor(ShiaColors.accent)
-                    .rotationEffect(.degrees(bearing - heading))
+                ZStack {
+                    // Decorative circle around the arrow
+                    Circle()
+                        .stroke(ShiaColors.accent, lineWidth: 2)
+                        .frame(width: 40, height: 40)
+                    
+                    // Custom arrow design
+                    Image(systemName: "arrow.up.circle.fill")
+                        .resizable()
+                        .frame(width: 30, height: 30)
+                        .foregroundStyle(
+                            LinearGradient(
+                                colors: [ShiaColors.accent, ShiaColors.secondary],
+                                startPoint: .top,
+                                endPoint: .bottom
+                            )
+                        )
+                }
+                .rotationEffect(.degrees(bearing - heading))
             }
         }
+        .frame(width: 300, height: 300)
     }
     
     private func directionText(for index: Int) -> String {
